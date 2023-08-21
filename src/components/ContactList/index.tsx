@@ -17,7 +17,6 @@ import {
   SquarePhoneFlip,
   Star,
   Trash,
-  User,
 } from '@styled-icons/fa-solid';
 
 export default function ContactList() {
@@ -112,7 +111,6 @@ export default function ContactList() {
           fav === contact.id
         )
       );
-      console.log(favContactThatExist);
       window.localStorage.setItem('FAV_CONTACT_LIST', JSON.stringify(favContactThatExist));
     }
   }, [data, favContact]);
@@ -152,17 +150,17 @@ export default function ContactList() {
 
   if (loading) {
     return (
-      <div>
+      <StyledLog>
         Loading...
-      </div>
+      </StyledLog>
     )
   }
 
   if (error) {
     return (
-      <div>
+      <StyledLog>
         An error occurred
-      </div>
+      </StyledLog>
     )
   }
 
@@ -180,7 +178,6 @@ export default function ContactList() {
             <option value={15} selected={contactPerPage === 15 ? true : false}>15</option>
           </StyledSelectOption>
           <StyledSearchBar type="text" onChange={(event) => handleOnSearch(event)} value={keyword} placeholder="Contact name..."/>
-          {/* <input type="text" onChange={(event) => handleOnSearch(event)} value={keyword} /> */}
           <StyledIconButton color="primary" onClick={() => toggleModalAddContact(!modalAddContactIsShow)}>
             <Plus size="20" title="add-button" />
           </StyledIconButton>
@@ -193,7 +190,6 @@ export default function ContactList() {
             }).map((contact) => (
               <StyledContactWrapper key={contact.id}>
                 <StyledProfileInfo>
-                  {/* <StyledUser size="30" title={contact.first_name + "-image"} /> */}
                   <StyledUserImage src={require('../../../resources/images/man-' + (Math.ceil(Math.random()*2) + '.png'))} alt="user-image" />
                   <StyledUserName>{contact.first_name} {contact.last_name}</StyledUserName>
                 </StyledProfileInfo>
@@ -261,6 +257,12 @@ export default function ContactList() {
   );
 }
 
+const StyledLog = styled.p`
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.2rem;
+`;
+
 const StyledPageWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -299,6 +301,11 @@ const StyledToolBar = styled.div`
   gap: 0.6rem;
   justify-content: center;
   height: 2rem;
+  @media (min-width: 768px) {
+    margin-left: auto;
+    margin-right: auto;
+    gap: 1rem;
+  }
 `;
 const StyledSelectOption = styled.select`
   border-radius: 0.4rem;
@@ -310,6 +317,9 @@ const StyledSearchBar = styled.input`
   border: none;
   flex-grow: 1;
   padding: 0 0.6rem;
+  @media (min-width: 768px) {
+    width: 50vh;
+  }
 `;
 const StyledIconButton = styled.button`
   color: #2a2f35;
@@ -342,21 +352,49 @@ const StyledContactList = styled.div`
   flex-direction: column;
   flex-grow: 1;
   overflow-y: auto;
+  @media (min-width: 768px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+  }
 `;
 const StyledContactWrapper = styled.div`
   position: relative;
+  display: flex;
+  flex-direction: column;
+  @media (min-width: 768px) {
+    border-radius: 0.8rem;
+    width: 45%;
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    border: 0.5px solid rgba(0,0,0,0.75);
+    padding: 0.4rem;
+  }
+  @media (min-width: 1150px) {
+    width: 30%;
+    padding: 0.8rem;
+    justify-content: center;
+  }
 `;
 const StyledStar = styled(Star)`
   position: absolute;
   top: 1rem;
-  right: 0.4rem;
-  color: ${(props) => (props.color === 'fav' ? '#FFD700' : '#ababab')}}
+  right: 0.5rem;
+  color: ${(props) => (props.color === 'fav' ? '#FFD700' : '#ababab')};
+  @media (min-width: 768px) {
+    top: 1.2rem;
+    right: 1rem;
+  }
 `;
 const StyledProfileInfo = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   padding: 0.4rem 0;
+  @media (min-width: 768px) {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
 `;
 const StyledUserImage = styled.img`
   width: 4rem;
@@ -382,6 +420,11 @@ const StyledPhoneWrapper = styled.ul`
   border-radius: 0.4rem;
   margin: 0.2rem 0;
   overflow-x: scroll;
+  @media (min-width: 768px) {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+  }
 `;
 const StyledTitlePhoneWrapper = styled.li`
   font-weight: 600;
@@ -393,34 +436,18 @@ const StyledPhoneList = styled.li`
 const StyledBreak = styled.hr`
   border: 1px solid #ffffff;
   margin-top: 1.2rem;
+  @media (min-width: 768px) {
+    display: none;
+  }
 `;
 
 const StyledPaginationWrapper = styled.div`
   display: flex;
   flex-direction: row;
-`;
-
-const StyledAppContainer = styled.div`
-  background-color: #eeeeee;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  @media (min-width: 480px) {
-    background-color: #5c5;  
-  }
-
   @media (min-width: 768px) {
-    background-color: #d6d;
-  }
-
-  @media (min-width: 1024px) {
-    background-color: #b77;
-  }
-
-  @media (min-width: 1200px) {
-    background-color: #88a;
+    width: 70vh;
+    margin-left: auto;
+    margin-right: auto;
   }
 `;
-
-// 2a2f35
 

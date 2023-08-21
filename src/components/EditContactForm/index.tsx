@@ -26,7 +26,7 @@ export default function EditContactForm(props: PropsInterface) {
   const [ editContact ] = useMutationEditContact();
   const [ editPhone ] = useMutationEditPhoneNumber();
   const [ AddNumberToContact ] = useMutationAddNumberToContact();
-  const [ getContactList, {data: dataContact} ] = useLazyQueryGetContactList();
+  const [ getContactList ] = useLazyQueryGetContactList();
   const [ getPhoneList ] = useLazyQueryGetPhoneList();
   const [countPhone, setCountPhone] = useState<number>(1);
   const [phoneInput, setPhoneInput] = useState<React.ReactNode>([]);
@@ -60,8 +60,7 @@ export default function EditContactForm(props: PropsInterface) {
     if (data && data.contact_by_pk) {
       for (let i = 0; i < countPhone; i ++) {
         tempArr.push(
-          <StyledPhoneInputWrapper key={'phone-'+i}>
-            <StyledPhoneFormWrapper action="" method="POST" onSubmit={(event) => handleOnSubmitPhones(event)}>
+            <StyledPhoneFormWrapper key={'phone-'+i} action="" method="POST" onSubmit={(event) => handleOnSubmitPhones(event)}>
               <StyledInputPhoneText id={'input-phone-'+i} type="text" name="phones" value={contactPhones[i]?.number || ''} onChange={(event) => handleOnChangePhone(event)} placeholder="Phone Number" />
               <StyledSaveInputButton type="submit" >
                 <FloppyDisk size="14" title={'input-phone-'+i+'-save'} />
@@ -69,7 +68,6 @@ export default function EditContactForm(props: PropsInterface) {
               <input type="hidden" name="index" value={i} />
               { i !== 0 ? <StyledRemoveInputButton onClick={(event) => handleDecraseCountPhone(event)}>-</StyledRemoveInputButton> : <></> }
             </StyledPhoneFormWrapper>
-          </StyledPhoneInputWrapper>
         );
       }
     }
@@ -78,17 +76,17 @@ export default function EditContactForm(props: PropsInterface) {
 
   if (loading) {
     return (
-      <div>
+      <StyledLog>
         Loading...
-      </div>
+      </StyledLog>
     )
   }
 
   if (error) {
     return (
-      <div>
+      <StyledLog>
         An error occurred
-      </div>
+      </StyledLog>
     )
   }
 
@@ -110,7 +108,7 @@ export default function EditContactForm(props: PropsInterface) {
       validStatus.regex = false;
     };
 
-    getContactList({
+    const {data: responseContact} = await getContactList({
       variables: {
         where: {
           first_name: {
@@ -122,7 +120,7 @@ export default function EditContactForm(props: PropsInterface) {
         },
       }
     });
-    if (dataContact?.contact?.length) {
+    if (responseContact?.contact?.length) {
       validStatus.name = false;
     }
 
@@ -138,7 +136,7 @@ export default function EditContactForm(props: PropsInterface) {
           },
           onCompleted: () => {props.refetch()},
         });
-        console.log("Contact updated: ", data.addContactsWithPhones);
+        console.log("Contact updated: ", data.update_contact_by_pk);
       } catch (error) {
         console.log("Error updating contact: ", error);
       }
@@ -160,7 +158,7 @@ export default function EditContactForm(props: PropsInterface) {
       phones: true,
     };
 
-    const promises = contactPhones.flatMap(async (phone) => {
+    const promisesPhones = contactPhones.flatMap(async (phone) => {
       const { data } = await getPhoneList({
         variables: {
           where: {
@@ -173,8 +171,8 @@ export default function EditContactForm(props: PropsInterface) {
       return data?.phone;
     });
 
-    const existedPhones = (await Promise.all(promises)).flatMap((value) => value);
-    if (existedPhones) {
+    const existedPhones = (await Promise.all(promisesPhones)).flatMap((value) => value);
+    if (existedPhones.length !== 0) {
       validStatus.phones = false;
     }
 
@@ -204,7 +202,7 @@ export default function EditContactForm(props: PropsInterface) {
             },
             onCompleted: () => {props.refetch()},
           });
-          console.log("Phone updated: ", data.addContactsWithPhones);
+          console.log("Phone updated: ", data.update_phone_by_pk);
         } catch (error) {
           console.log("Error updating phone: ", error);
         }
@@ -252,7 +250,7 @@ export default function EditContactForm(props: PropsInterface) {
   if (data?.contact_by_pk === null) {
     return (
       <>
-        <p>The Contact you want to edit is cant be found on the server</p>
+        <StyledLog>The Contact you want to edit is can't be found on the server</StyledLog>
       </>
     )
   }
@@ -266,10 +264,8 @@ export default function EditContactForm(props: PropsInterface) {
         { !validation.regex ? <StyledWarning>*Input value can't contain special character</StyledWarning> : <></> }
         <StyledLabelInput className="required" htmlFor="fname">First Name<StyledRequiredNote>*</StyledRequiredNote></StyledLabelInput>
         <StyledInputText id='input-fname' type="text" name="fname" value={contactFormInfo.fname} onChange={(event) => handleOnChangeForm(event)} placeholder="First Name" />
-        {/* { !validation.fname ? <p>Contact name must be unique, you can change the first name</p> : <></> } */}
         <StyledLabelInput className="required" htmlFor="lname">Last Name<StyledRequiredNote>*</StyledRequiredNote></StyledLabelInput>
         <StyledInputText id='input-lname' type="text" name="lname" value={contactFormInfo.lname} onChange={(event) => handleOnChangeForm(event)} placeholder="Last Name" />
-        {/* { !validation.lname ? <p>Contact name must be unique, you can change the last name</p> : <></> } */}
         <StyledIconButtonWithName color='default' type="submit" value="Save Contact Info">
           <FloppyDisk size="18" title="save-contact-button" />
           <p style={{margin: 0}}>Contact info</p>
@@ -277,7 +273,6 @@ export default function EditContactForm(props: PropsInterface) {
       </StyledForm>
       <StyledLabelInput className="required" htmlFor="fname">Phones<StyledRequiredNote>*</StyledRequiredNote></StyledLabelInput>
       {phoneInput}
-      {/* { !validation.phones ? <p>One of the numbers are duplicate from other contacts, please provide unique phone number</p> : <></> } */}
       <StyledIconButtonWithName onClick={(event) => handleIncreaseCountPhone(event)}>
         <Plus size="18" title="add-more-phone-button" />
         More phone
@@ -285,6 +280,12 @@ export default function EditContactForm(props: PropsInterface) {
     </StyledEditFormWrapper>
   );
 }
+
+const StyledLog = styled.p`
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.2rem;
+`;
 
 const StyledEditFormWrapper = styled.div`
   overflow-y: auto;
@@ -326,24 +327,20 @@ const StyledInputText = styled.input`
   margin-bottom: 1.2rem;
 `;
 
-const StyledPhoneInputWrapper = styled.div`
+const StyledPhoneFormWrapper = styled.form`
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-bottom: 1.2rem;
 `;
 
-const StyledPhoneFormWrapper = styled.form`
-  display: flex;
-  flex-direction: row;
-`;
-
 const StyledInputPhoneText = styled.input`
   background-color: #ebebeb;
   border-radius: 0.4rem;
   border: none;
-  width: 70%;
+  width: 100vh;
   padding: 0.4rem 0.6rem;
+  flex-grow: 1;
 `;
 
 const StyledRemoveInputButton = styled.button`

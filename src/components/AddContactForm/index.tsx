@@ -20,7 +20,7 @@ interface PropsInterface {
 
 export default function AddContactForm(props: PropsInterface) {
   const [ addContactsWithPhones, { loading }] = useMutationAddContactWithPhones();
-  const [ getContactList, {data: dataContact} ] = useLazyQueryGetContactList();
+  const [ getContactList ] = useLazyQueryGetContactList();
   const [ getPhoneList ] = useLazyQueryGetPhoneList();
   const [countPhone, setCountPhone] = useState<number>(1);
   const [phoneInput, setPhoneInput] = useState<React.ReactNode>([]);
@@ -68,7 +68,7 @@ export default function AddContactForm(props: PropsInterface) {
       validStatus.regex = false;
     };
 
-    getContactList({
+    const {data: responseContact} = await getContactList({
       variables: {
         where: {
           first_name: {
@@ -80,11 +80,12 @@ export default function AddContactForm(props: PropsInterface) {
         },
       }
     });
-    if (dataContact?.contact?.length) {
+
+    if (responseContact?.contact?.length !== 0) {
       validStatus.name = false;
     }
 
-    const promises = contactPhones.flatMap(async (phone) => {
+    const promisesPhones = contactPhones.flatMap(async (phone) => {
       const { data } = await getPhoneList({
         variables: {
           where: {
@@ -97,8 +98,8 @@ export default function AddContactForm(props: PropsInterface) {
       return data?.phone;
     });
 
-    const existedPhones = (await Promise.all(promises)).flatMap((value) => value);
-    if (existedPhones) {
+    const existedPhones = (await Promise.all(promisesPhones)).flatMap((value) => value);
+    if (existedPhones.length !== 0) {
       validStatus.phones = false;
     }
 
@@ -113,7 +114,7 @@ export default function AddContactForm(props: PropsInterface) {
           onCompleted: () => {props.refetch()},
         });
         if (loading) console.log('loading sek gan');
-        console.log("New contact added: ", data.addContactsWithPhones);
+        console.log("New contact added: ", data.insert_contact);
       } catch (error) {
         console.log("Error adding contact: ", error);
       }
@@ -231,7 +232,7 @@ const StyledInputPhoneText = styled.input`
   background-color: #ebebeb;
   border-radius: 0.4rem;
   border: none;
-  width: 80%;
+  width: 100vw;
   padding: 0.4rem 0.6rem;
 `;
 

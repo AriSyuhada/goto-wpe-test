@@ -19,17 +19,17 @@ export default function DeleteContactPrompt(props : PropsInterface) {
   
   if (loading) {
     return (
-      <div>
+      <StyledLog>
         Loading...
-      </div>
+      </StyledLog>
     )
   }
 
   if (error) {
     return (
-      <div>
+      <StyledLog>
         An error occurred
-      </div>
+      </StyledLog>
     )
   }
 
@@ -42,7 +42,7 @@ export default function DeleteContactPrompt(props : PropsInterface) {
         onCompleted: () => {props.refetch()},
       });
       if (loading) console.log('loading sek gan');
-      console.log("Contact deleted: ", data.addContactsWithPhones);
+      console.log("Contact deleted: ", data.delete_contact_by_pk);
     } catch (error) {
       console.log("Error deleting contact: ", error);
     }
@@ -53,6 +53,14 @@ export default function DeleteContactPrompt(props : PropsInterface) {
   const handleCancelDelete = () => {
     props.toggle(false);
   };
+
+  if (data?.contact_by_pk === null) {
+    return (
+      <>
+        <StyledLog>The Contact you want to edit is can't be found on the server</StyledLog>
+      </>
+    )
+  }
 
   return (
     <StyledPromptWrapper>
@@ -79,6 +87,12 @@ export default function DeleteContactPrompt(props : PropsInterface) {
     </StyledPromptWrapper>
   );
 }
+
+const StyledLog = styled.p`
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.2rem;
+`;
 
 const StyledPromptWrapper = styled.div`
   display: flex;
