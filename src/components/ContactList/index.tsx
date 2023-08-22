@@ -184,6 +184,7 @@ export default function ContactList() {
         </StyledToolBar>
         <StyledContactList>
           {
+            currentContact.length !== 0 ?
             currentContact.filter((contact) => {
               return ( contact.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
                 contact.last_name.toLowerCase().includes(keyword.toLocaleLowerCase()) )
@@ -217,6 +218,8 @@ export default function ContactList() {
                 <StyledBreak />
               </StyledContactWrapper>
             ))
+            :
+            <StyledLog>No Contact added</StyledLog>
           }
         </StyledContactList>
         <StyledPaginationWrapper>
